@@ -111,7 +111,7 @@ const postPokemon = async (data) => {
     };
 
   let user = await User.findByPk(email);
-
+  console.log("hola");
   if (!user)
     throw {
       error: "cannotCreate",
@@ -123,7 +123,7 @@ const postPokemon = async (data) => {
       userEmail: email,
     },
   });
-
+  console.log("ag");
   if (allPokemons.length >= 10)
     throw {
       error: "cannotCreate",
@@ -132,7 +132,6 @@ const postPokemon = async (data) => {
 
   try {
     let pokemon = await Pokemon.create(data);
-    await axios.get("http://localhost:3001/types");
 
     await pokemon.addType(types);
 
