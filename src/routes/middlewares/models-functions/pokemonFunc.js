@@ -1,5 +1,5 @@
 const { Pokemon, Type, User, BlockedUsers } = require("../../../db.js"),
-  axios = require("axios"),
+  fetch = require("node-fetch"),
   API = "https://pokeapi.co/api/v2/pokemon";
 
 const modelPokemon = (obj) => {
@@ -40,32 +40,33 @@ const findPokemon = async (request, method) => {
 };
 
 const getPokemons = async (name) => {
-  console.log("hola");
   if (name) {
     let pokeApi = null;
     try {
-      pokeApi = await axios.get(`${API}/${name}`);
+      pokeApi = await fetch(`${API}/${name}`);
+      pokeApi = await pokeApi.json();
     } catch {}
-
-    console.log(pokeApi);
 
     let pokesCreated = await findPokemon({ where: { name } }, "findAll");
 
-    if (pokeApi) return [...pokesCreated, modelPokemon(pokeApi.data)];
+    if (pokeApi) return [...pokesCreated, modelPokemon(pokeApi)];
     else return pokesCreated;
   }
+
+  let requestApiUrl = await fetch(`${API}?limit=40`);
+  requestApiUrl = await requestApiUrl.json();
 
   try {
     let requests = await Promise.all([
       findPokemon({}, "findAll"),
-      axios.get(`${API}?limit=40`),
+      requestApiUrl,
     ]).then((results) => [
       ...results[0],
-      ...results[1].data.results.map((r) => axios.get(r.url)),
+      ...results[1].results.map((r) => fetch(r.url).then((res) => res.json())),
     ]);
 
     return await Promise.all(requests).then((results) =>
-      results.map((r) => (r.data ? modelPokemon(r.data) : r))
+      results.map((r) => (Object.keys(r).length >= 18 ? modelPokemon(r) : r))
     );
   } catch {
     throw { message: "No se encontraron pokemons", error: "notFound" };
@@ -90,8 +91,8 @@ const getpokemon = async (id) => {
       else throw new Error();
     }
 
-    let result = await axios.get(`${API}/${id}`);
-    return modelPokemon(result.data);
+    let result = await fetch(`${API}/${id}`);
+    return modelPokemon(await result.json());
   } catch (e) {
     throw errorMessage;
   }
