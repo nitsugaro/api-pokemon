@@ -111,7 +111,7 @@ const postPokemon = async (data) => {
     };
 
   let user = await User.findByPk(email);
-  console.log("hola");
+
   if (!user)
     throw {
       error: "cannotCreate",
@@ -124,7 +124,7 @@ const postPokemon = async (data) => {
     },
   });
   console.log("ag");
-  if (allPokemons.length >= 10)
+  if (allPokemons.length >= 3)
     throw {
       error: "cannotCreate",
       message: "Número de pokemons creados excedido",
