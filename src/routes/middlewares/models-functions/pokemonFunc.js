@@ -46,9 +46,9 @@ const getPokemons = async (name) => {
       pokeApi = await fetch(`${API}/${name}`);
       pokeApi = await pokeApi.json();
     } catch {}
-
+    console.log(name, pokeApi);
     let pokesCreated = await findPokemon({ where: { name } }, "findAll");
-
+    console.log(pokesCreated);
     if (pokeApi) return [...pokesCreated, modelPokemon(pokeApi)];
     else return pokesCreated;
   }
@@ -123,7 +123,7 @@ const postPokemon = async (data) => {
       userEmail: email,
     },
   });
-  console.log("ag");
+
   if (allPokemons.length >= 3)
     throw {
       error: "cannotCreate",
