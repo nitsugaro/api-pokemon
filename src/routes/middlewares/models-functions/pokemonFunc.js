@@ -44,9 +44,8 @@ const getPokemons = async (name) => {
     let pokeApi = null;
     try {
       pokeApi = await fetch(`${API}/${name}`);
+      pokeApi = pokeApi.ok ? await pokeApi.json() : null;
     } catch {}
-
-    pokeApi = await pokeApi.json();
     console.log(name, pokeApi);
     let pokesCreated = await findPokemon({ where: { name } }, "findAll");
     console.log(pokesCreated);
