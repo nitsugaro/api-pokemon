@@ -20,6 +20,15 @@ const modelPokemon = (obj) => {
   };
 };
 
+const searchPokemonsByPattern = async (pokeApi, pattern) => {
+  const patternRegExp = new RegExp(`^${pattern}`, "i");
+  const filteredPokeApi = pokeApi.filter((p) => patternRegExp.test(p.name));
+
+  return await Promise.all(filteredPokeApi.map((p) => fetch(p.url)))
+    .then((results) => Promise.all(results.map((r) => r.json())))
+    .then((results) => results.map((r) => modelPokemon(r)));
+};
+
 const findPokemon = async (request, method) => {
   return await Pokemon[method]({
     ...request,
@@ -41,15 +50,16 @@ const findPokemon = async (request, method) => {
 
 const getPokemons = async (name) => {
   if (name) {
-    let pokeApi = null;
-    try {
-      pokeApi = await fetch(`${API}/${name}`);
-      pokeApi = pokeApi.ok ? await pokeApi.json() : null;
-    } catch {}
-    console.log(name, pokeApi);
-    let pokesCreated = await findPokemon({ where: { name } }, "findAll");
-    console.log(pokesCreated);
-    if (pokeApi) return [...pokesCreated, modelPokemon(pokeApi)];
+    let pokeApi = await fetch(`${API}?offset=0&limit=900`);
+    pokeApi = pokeApi.ok ? await pokeApi.json() : null;
+    pokeApi = await searchPokemonsByPattern(pokeApi.results, name);
+
+    let pokesCreated = await findPokemon(
+      { where: { name: { [Op.startsWith]: name } } },
+      "findAll"
+    );
+
+    if (pokeApi.length) return [...pokesCreated, ...pokeApi];
     else return pokesCreated;
   }
 
