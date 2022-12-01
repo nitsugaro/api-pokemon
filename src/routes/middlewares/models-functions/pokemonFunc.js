@@ -1,4 +1,5 @@
 const { Pokemon, Type, User, BlockedUsers } = require("../../../db.js"),
+  { Op } = require("sequelize"),
   fetch = require("node-fetch"),
   API = "https://pokeapi.co/api/v2/pokemon";
 
