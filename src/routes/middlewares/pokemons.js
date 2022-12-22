@@ -43,7 +43,7 @@ pokemon.get("/:idPokemon", async (req, res) => {
   }
 });
 
-pokemon.post("/", async (req, res) => {
+pokemon.post("/", extractUser, async (req, res) => {
   try {
     res.status(201).json(await postPokemon(req.body));
   } catch (e) {
