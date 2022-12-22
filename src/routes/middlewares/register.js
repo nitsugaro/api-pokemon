@@ -33,7 +33,7 @@ register.post("/", async (req, res) => {
     const createUser = await User.create({
       email,
       username,
-      password: await bcrypt.hash(password, 8),
+      password,
       image,
     });
 
